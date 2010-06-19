@@ -49,6 +49,8 @@ const float finishWP[2][3]=
     {1801.385f, 804.238f, 44.363f},
 };
 
+const float TeleIn[4]={1827.29f, 803.932f, 44.36348f, 0};
+
 const uint8 NumberOfWaypoints[PRISONBOSSES]={2, 4, 7, 4, 3, 2};//lavanthor, moragg, zulamat, erekem, ichiron, xevozz,
 
 const float LavanthorReleaseWP[2][3]=
@@ -1068,14 +1070,16 @@ struct MANGOS_DLL_DECL npc_violetholddoorAI : public Scripted_NoMovementAI
             return false;
         if (!(who->isAlive()))
             return false;
-        if (who->IsWithinDistInMap(m_creature,20.0f))
-            return true;
-        else return false;
+        if (!(who->IsWithinDistInMap(m_creature,20.0f)))
+            return false;
+        if (who->getVictim())
+            return false;
+        else return true;
     }
 
     void MoveInLineOfSight(Unit* who)
     {
-        if (EventActive && (!FirstPortal) && (!(m_creature->getVictim())))
+        if (EventActive && (!FirstPortal))
         {
             if (CanDestroyDoor(who))
             {
@@ -1624,6 +1628,86 @@ struct MANGOS_DLL_DECL mob_azureinvaderAI : public violet_hold_invaderAI
     }
 };
 
+#define S_SLOW_SPELLBREAKER             25603
+#define S_ARCANE_BARRAGE_SPELLBREAKER   58462
+
+struct MANGOS_DLL_DECL mob_azurespellbreakerAI : public violet_hold_invaderAI
+{
+    mob_azurespellbreakerAI(Creature* pCreature) : violet_hold_invaderAI(pCreature)
+    {
+        Reset();
+    }
+
+    uint16 SlowTimer;
+    uint16 ArcaneBlastTimer;
+
+    void Reset()
+    {
+        violet_hold_invaderAI::Reset();
+        SlowTimer=urand(3000,6000);
+        ArcaneBlastTimer=urand(10000,15000);
+    }
+
+    void UpdateEscortAI(const uint32 diff)
+    {
+        violet_hold_invaderAI::UpdateEscortAI(diff);
+        
+        if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
+            return;
+
+        if (SlowTimer<diff)
+        {
+            DoCast(m_creature->getVictim(),S_SLOW_SPELLBREAKER);
+            SlowTimer=urand(7000,10000);
+        }
+        else SlowTimer-=diff;
+
+        if (ArcaneBlastTimer<diff)
+        {
+            DoCast(m_creature->getVictim(),S_ARCANE_BARRAGE_SPELLBREAKER);
+            ArcaneBlastTimer=urand(13000,16000);
+        }
+        else ArcaneBlastTimer-=diff;
+
+        DoMeleeAttackIfReady();
+    }
+};
+
+#define S_ARCANE_EMPOWERMENT_MAGESLAYER     58469
+
+struct MANGOS_DLL_DECL mob_azuremageslayerAI : public violet_hold_invaderAI
+{
+    mob_azuremageslayerAI(Creature* pCreature) : violet_hold_invaderAI(pCreature)
+    {
+        Reset();
+    }
+
+    uint16 ArcaneEmpowermentTimer;
+
+    void Reset()
+    {
+        violet_hold_invaderAI::Reset();
+        ArcaneEmpowermentTimer=urand(3000,6000);
+    }
+    
+    void UpdateEscortAI(const uint32 diff)
+    {
+        violet_hold_invaderAI::UpdateEscortAI(diff);
+
+        if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
+            return;
+
+        if (ArcaneEmpowermentTimer<diff)
+        {
+            DoCast(m_creature,S_ARCANE_EMPOWERMENT_MAGESLAYER);
+            ArcaneEmpowermentTimer=urand(14000,20000);
+        }
+        else ArcaneEmpowermentTimer-=diff;
+
+        DoMeleeAttackIfReady();
+    }
+};
+
 
 struct MANGOS_DLL_DECL npc_violetholdguardAI : public npc_escortAI
 {
@@ -1690,7 +1774,7 @@ bool GossipSelect_npc_sinclari(Player *player, Creature *_Creature, uint32 sende
         ((npc_sinclariAI*)_Creature->AI())->EventActivate();
         player->CLOSE_GOSSIP_MENU();
     case GOSSIP_ACTION_INFO_DEF+3:
-        //teleport in
+        player->TeleportTo(_Creature->GetMapId(),TeleIn[0],TeleIn[1],TeleIn[2],TeleIn[3]);
         player->CLOSE_GOSSIP_MENU();
         break;
     }
@@ -1741,7 +1825,22 @@ CreatureAI* GetAI_mob_azurestalker(Creature* pCreature)
 CreatureAI* GetAI_mob_azurebinder(Creature* pCreature)
 {
     return new mob_azurebinderAI(pCreature);
-}   
+}
+
+CreatureAI* GetAI_mob_azureinvader(Creature* pCreature)
+{
+    return new mob_azureinvaderAI(pCreature);
+}
+
+CreatureAI* GetAI_mob_azurespellbreaker(Creature* pCreature)
+{
+    return new mob_azurespellbreakerAI(pCreature);
+}
+
+CreatureAI* GetAI_mob_azuremageslayer(Creature* pCreature)
+{
+    return new mob_azuremageslayerAI(pCreature);
+}
 
 CreatureAI* GetAI_mob_azuresaboteur(Creature* pCreature)
 {
@@ -1780,6 +1879,21 @@ void AddSC_violet_hold()
     newscript = new Script;
     newscript->Name = "mob_azurebinder";
     newscript->GetAI = &GetAI_mob_azurebinder;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "mob_azureinvader";
+    newscript->GetAI = &GetAI_mob_azureinvader;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "mob_azurespellbreaker";
+    newscript->GetAI = &GetAI_mob_azurespellbreaker;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "mob_azuremageslayer";
+    newscript->GetAI = &GetAI_mob_azuremageslayer;
     newscript->RegisterSelf();
 
     newscript = new Script;
