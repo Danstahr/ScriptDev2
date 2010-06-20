@@ -160,9 +160,9 @@ struct MANGOS_DLL_DECL boss_xevozzAI : public npc_escortAI
 
         if (m_uiSummonEtherealSphere_Timer < uiDiff)
         {
-            DoScriptText(SAY_SPAWN, m_creature);
+            DoScriptText(SAY_SUMMON_ENERGY, m_creature);
             DoCast(m_creature, SPELL_SUMMON_ETHEREAL_SPHERE_1);
-            if (m_bIsRegularMode) // extra one for heroic
+            if (!m_bIsRegularMode) // extra one for heroic
                 m_creature->SummonCreature(NPC_ETHEREAL_SPHERE, m_creature->GetPositionX()-5+rand()%10, m_creature->GetPositionY()-5+rand()%10, m_creature->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 40000);
 
             m_uiSummonEtherealSphere_Timer = urand(45000, 47000);

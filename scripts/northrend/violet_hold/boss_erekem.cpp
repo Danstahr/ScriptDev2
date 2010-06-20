@@ -100,26 +100,12 @@ struct MANGOS_DLL_DECL boss_erekemAI : public npc_escortAI
         DoScriptText(SAY_AGGRO, m_creature);
     }
 
-    /*void AttackStart(Unit* pWho)
-    {
-        std::list<Creature*> lUnitList;
-        GetCreatureListWithEntryInGrid(lUnitList, m_creature, NPC_EREKEM_GUARD, 100.0f);
-        if (!lUnitList.empty())
-            for(std::list<Creature*>::iterator iter = lUnitList.begin(); iter != lUnitList.end(); ++iter)
-                if (*iter)
-                    if ((*iter)->isAlive())
-                    {
-                        (*iter)->AddThreat(pWho, 0.0f);
-                        (*iter)->AI()->AttackStart(pWho);
-                    }
-    }*/
-
     void DoAction(uint32 action)
     {
         switch (action)
         {
         case BOSS_PULL:
-            //m_creature->MonsterSay("Prej me pullnuli",0,m_creature->GetGUID());
+            DoScriptText(SAY_SPAWN,m_creature);
             for (uint8 i=0;i<2;i++)
             {
                 if (!i)

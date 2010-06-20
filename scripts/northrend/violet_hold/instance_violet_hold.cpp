@@ -30,6 +30,7 @@ struct MANGOS_DLL_DECL instance_violethold : public ScriptedInstance
     uint16 WipeCheckTimer;
     uint16 BossStatus[PRISONBOSSES];
     uint16 SelectedBoss[2];
+    uint16 Completed;
     uint8 PortalCounter;
     uint8 TickCounter;
     uint8 SealIntegrity;
@@ -38,7 +39,7 @@ struct MANGOS_DLL_DECL instance_violethold : public ScriptedInstance
 
     std::string strInstData;
 
-    void DefenseSystemTrigger()
+    void DefenseSystemTrigger(bool CausedByWipe=false)
     {
         Creature* Door = instance->GetCreature(DoorSealGUID);
 
@@ -47,11 +48,17 @@ struct MANGOS_DLL_DECL instance_violethold : public ScriptedInstance
             std::list<Creature*> Creatures;
             GetCreatureListWithFactionInGrid(Creatures,Door,FACTION_VIOLET_HOLD_INVADER,1000.0f);
             for (std::list<Creature*>::const_iterator i=Creatures.begin();i!=Creatures.end();++i)
-                (*i)->DealDamage((*i),DEF_SYSTEM_DAMAGE_AMOUNT,NULL,DIRECT_DAMAGE,SPELL_SCHOOL_MASK_ARCANE,NULL,false);
+            {
+                if (CausedByWipe)
+                    if ((*i)->isAlive())
+                        (*i)->RemoveFromWorld();
+                else
+                    (*i)->DealDamage((*i),DEF_SYSTEM_DAMAGE_AMOUNT,NULL,DIRECT_DAMAGE,SPELL_SCHOOL_MASK_ARCANE,NULL,false);
+            }
         }
     }
 
-    void CheckBossesAndCrystals()
+    void CheckCrystals()
     {
         Creature* Door = instance->GetCreature(DoorSealGUID);
 
@@ -65,6 +72,11 @@ struct MANGOS_DLL_DECL instance_violethold : public ScriptedInstance
                 (*i)->SetGoState(GO_STATE_READY);
             }
         }
+    }
+
+    void CheckBosses()
+    {
+        Creature* Door = instance->GetCreature(DoorSealGUID);
 
         for (uint8 i=0;i<PRISONBOSSES;i++)
         {
@@ -110,11 +122,13 @@ struct MANGOS_DLL_DECL instance_violethold : public ScriptedInstance
             {
                 Creature* Boss=instance->GetCreature(GetData64(i));
                 if (Boss)
+                {
                     if (!(Boss->isAlive()))
                     {
                         Boss->Respawn();
                         Boss->setFaction(35);
                     }
+                }
             }
         }
     }
@@ -155,13 +169,23 @@ struct MANGOS_DLL_DECL instance_violethold : public ScriptedInstance
             }
         }
         // kill all event mobs arround (defense system AoE) TODO : Escort all enemy units to entrance
-        for (int i=0;i<20;i++)
-            DefenseSystemTrigger();
+        DefenseSystemTrigger(true);
+        //set crystals to passive
+        if (Door)
+        {
+            std::list<GameObject*> Crystals;
+            GetGameObjectListWithEntryInGrid(Crystals,Door,193611,1000.0f);
+            for (std::list<GameObject*>::const_iterator i = Crystals.begin();i!=Crystals.end();++i)
+            {
+                (*i)->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
+                (*i)->SetGoState(GO_STATE_ACTIVE);
+            }
+        }
 
         // reset all settings
         PortalCounter=0;
         TickCounter=0;
-        SealIntegrity=10;
+        SealIntegrity=100;
         UpDate=false;
         Wiped=true;
 
@@ -178,6 +202,9 @@ struct MANGOS_DLL_DECL instance_violethold : public ScriptedInstance
 
     bool WipeCheck()
     {
+        if (Wiped)
+            return false;
+        
         if (instance && instance->IsDungeon())
         {
             Map::PlayerList const &PlayerList = instance->GetPlayers();
@@ -204,7 +231,7 @@ struct MANGOS_DLL_DECL instance_violethold : public ScriptedInstance
         TickCounter=0;
         WipeCheckTimer=5000;
         DefsystemGUID=0;
-        SealIntegrity=10;
+        SealIntegrity=100;
         DoorSealGUID = 0;
         LavanthorGUID = 0;
         MoraggGUID=0;
@@ -218,6 +245,7 @@ struct MANGOS_DLL_DECL instance_violethold : public ScriptedInstance
             BossStatus[i] = NOT_STARTED; 
         UpDate=false;
         Wiped=false;
+        Completed=0;
     }
 
     void OnCreatureCreate(Creature* pCreature)
@@ -262,6 +290,15 @@ struct MANGOS_DLL_DECL instance_violethold : public ScriptedInstance
         }
     }
 
+    void OnObjectCreate(GameObject* pGo)
+    {
+        if (pGo->GetEntry()==193611)
+        {
+            pGo->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
+            pGo->SetGoState(GO_STATE_ACTIVE);
+        }
+    }
+
     void InitWorldState(bool Enable = true)
     {
         DoUpdateWorldState(3815,100);
@@ -272,6 +309,8 @@ struct MANGOS_DLL_DECL instance_violethold : public ScriptedInstance
     {
         switch (action)
         {
+        case DATA_COMPLETED:
+            return Completed;
         case DATA_PORTALCOUNTER:
             return PortalCounter;
         case DATA_TICKCOUNTER:
@@ -345,9 +384,14 @@ struct MANGOS_DLL_DECL instance_violethold : public ScriptedInstance
 
         switch(type)
         {
+        case DATA_COMPLETED:
+            Completed=data;
+            break;
         case DATA_PORTALCOUNTER:
             PortalCounter=data;
             DoUpdateWorldState(3810, data);
+            if (PortalCounter==1)
+                CheckCrystals();
             break;
         case DATA_TICKCOUNTER:
             TickCounter=data;
@@ -367,7 +411,7 @@ struct MANGOS_DLL_DECL instance_violethold : public ScriptedInstance
             std::ostringstream saveStream;
             saveStream << (uint32)BossStatus[0] << " " << (uint32)BossStatus[1] << " " << (uint32)BossStatus[2] << " "
                 << (uint32)BossStatus[3] << " "<< (uint32)BossStatus[4] << " " << (uint32)BossStatus[5] << " " 
-                << (uint32)SelectedBoss[0] << " " << (uint32)SelectedBoss[1];
+                << (uint32)SelectedBoss[0] << " " << (uint32)SelectedBoss[1] << " " << Completed;
 
             strInstData = saveStream.str();
 
@@ -392,7 +436,7 @@ struct MANGOS_DLL_DECL instance_violethold : public ScriptedInstance
         OUT_LOAD_INST_DATA(chrIn);
 
         std::istringstream loadStream(chrIn);
-        loadStream >> BossStatus[0] >> BossStatus[1] >> BossStatus[2] >> BossStatus[3] >> BossStatus[4] >> BossStatus[5] >> SelectedBoss[0] >> SelectedBoss[1];
+        loadStream >> BossStatus[0] >> BossStatus[1] >> BossStatus[2] >> BossStatus[3] >> BossStatus[4] >> BossStatus[5] >> SelectedBoss[0] >> SelectedBoss[1] >> Completed;
 
         for (uint8 i = 0; i < PRISONBOSSES; ++i)
             if (BossStatus[i] == IN_PROGRESS)
@@ -408,7 +452,7 @@ struct MANGOS_DLL_DECL instance_violethold : public ScriptedInstance
         {
             UpDate=true;
             DoUpdateWorldState(3815,SealIntegrity);
-            CheckBossesAndCrystals();
+            CheckBosses();
         }
         
         if (TickCounter>=18)

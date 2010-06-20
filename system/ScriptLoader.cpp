@@ -328,6 +328,7 @@ extern void AddSC_boss_zuramat();
 extern void AddSC_boss_xevozz();
 extern void AddSC_boss_erekem();
 extern void AddSC_boss_ichoron();
+extern void AddSC_boss_cyanigosa();
 
 extern void AddSC_borean_tundra();
 extern void AddSC_dalaran();
@@ -742,6 +743,7 @@ void AddScripts()
     AddSC_boss_xevozz();
     AddSC_boss_erekem();
     AddSC_boss_ichoron();
+    AddSC_boss_cyanigosa();
 
     AddSC_borean_tundra();
     AddSC_dalaran();

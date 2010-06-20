@@ -24,6 +24,12 @@ const float guards[4][4]=
     {1850.268f, 809.763f, 44.029f, 6.238f},
 };
 
+const float GuardsCompleted[2][3]=
+{
+    {1827.53f, 799.994f, 44.36331f},
+    {1827.18f, 807.778f, 44.41047f}
+};
+
 const float sinclari[4]=
 {
     1830.95f, 799.463f, 44.418f, 2.3911f
@@ -32,6 +38,14 @@ const float sinclari[4]=
 const float BossPortal[4]=
 {
     1888.064f, 803.225f, 38.353f, 6.227f
+};
+
+const float CyanigosaPortal[2][4]= // portal + her coordinates
+{
+    /*{1936.07f, 803.198f, 53.3749f, 3.12414f},
+    {1930.07f, 803.198f, 53.3749f, 3.12414f} upper, no jump -> spawn her down instead*/
+    {1905.40f, 803.012f, 38.64513f, 3.12414f},
+    {1896.11f, 803.063f, 38.49596f, 3.12414f}
 };
 
 const float SinclariWP[5][4]=
@@ -445,7 +459,7 @@ struct MANGOS_DLL_DECL npc_violetholdportalAI : public Scripted_NoMovementAI
     ScriptedInstance* m_instance;
     uint64 MainCreature[4];
     uint8 PortalNumber;    
-    uint16 SummonTimer;    
+    uint32 SummonTimer;    
     uint16 DespawnTimer;
     bool EventActive;
     bool FirstSpawn;
@@ -512,6 +526,7 @@ struct MANGOS_DLL_DECL npc_violetholdportalAI : public Scripted_NoMovementAI
 
     void SpawnSquad()
     {
+        SummonTimer=(uint32)-1;
         float x,y,z;
         m_creature->GetPosition(x,y,z);
         Creature* tempcreature=NULL;
@@ -548,7 +563,6 @@ struct MANGOS_DLL_DECL npc_violetholdportalAI : public Scripted_NoMovementAI
                         tempcreature->AI()->DoAction(PortalNumber);
                         tempcreature->AI()->DoAction(THIRD_SQUAD);
                         ((mob_azurecaptainAI*)tempcreature->AI())->MotherPortal=m_creature->GetGUID();
-                        tempcreature=NULL;
                     }
                     break;
                 case 1:
@@ -577,7 +591,6 @@ struct MANGOS_DLL_DECL npc_violetholdportalAI : public Scripted_NoMovementAI
                         tempcreature->AI()->DoAction(PortalNumber);
                         tempcreature->AI()->DoAction(THIRD_SQUAD);
                         ((mob_azurecaptainAI*)tempcreature->AI())->MotherPortal=m_creature->GetGUID();
-                        tempcreature=NULL;
                     }
                     break;
                 case 2:
@@ -606,7 +619,6 @@ struct MANGOS_DLL_DECL npc_violetholdportalAI : public Scripted_NoMovementAI
                         tempcreature->AI()->DoAction(PortalNumber);
                         tempcreature->AI()->DoAction(THIRD_SQUAD);
                         ((mob_azurecaptainAI*)tempcreature->AI())->MotherPortal=m_creature->GetGUID();
-                        tempcreature=NULL;
                     }
                     break;
                 case 3:
@@ -635,7 +647,6 @@ struct MANGOS_DLL_DECL npc_violetholdportalAI : public Scripted_NoMovementAI
                         tempcreature->AI()->DoAction(PortalNumber);
                         tempcreature->AI()->DoAction(THIRD_SQUAD);
                         ((mob_azurecaptainAI*)tempcreature->AI())->MotherPortal=m_creature->GetGUID();
-                        tempcreature=NULL;
                     }
                 }
             }
@@ -675,7 +686,6 @@ struct MANGOS_DLL_DECL npc_violetholdportalAI : public Scripted_NoMovementAI
                     tempcreature->AI()->DoAction(PortalNumber);
                     tempcreature->AI()->DoAction(FOURTH_SQUAD);
                     ((mob_azurecaptainAI*)tempcreature->AI())->MotherPortal=m_creature->GetGUID();
-                    tempcreature=NULL;
                 }
             }
             Map* pMap = m_creature->GetMap();
@@ -694,6 +704,13 @@ struct MANGOS_DLL_DECL npc_violetholdportalAI : public Scripted_NoMovementAI
 
     void DoAction(uint32 action)
     {
+        if (action==CYANIGOSA)
+        {
+            DespawnTimer=10000;
+            SummonTimer=30000;
+            return;
+        }
+
         if (action>SQUAD_LIMIT)
         {
             if ((action-FIRST_SQUAD)>3)
@@ -799,6 +816,7 @@ struct MANGOS_DLL_DECL npc_violetholdportalAI : public Scripted_NoMovementAI
         {
             if (SummonTimer<=diff)
             {
+                SummonTimer=15000;
                 if (FirstSpawn)
                 {
                     uint8 rnd;
@@ -836,7 +854,6 @@ struct MANGOS_DLL_DECL npc_violetholdportalAI : public Scripted_NoMovementAI
                         break;
                     }
                     FirstSpawn=false;
-                    SummonTimer=15000; //overit
                 }
                 else
                 {
@@ -1020,6 +1037,7 @@ struct MANGOS_DLL_DECL npc_sinclariAI : public npc_escortAI
     }
 };
 
+#define C_CYANIGOSA 31134
 
 struct MANGOS_DLL_DECL npc_violetholddoorAI : public Scripted_NoMovementAI
 {
@@ -1042,6 +1060,7 @@ struct MANGOS_DLL_DECL npc_violetholddoorAI : public Scripted_NoMovementAI
     uint8 PortalCounter;
     bool FirstPortal;
     bool Spawned;
+    bool isBoss;
 
     void Reset()
     {
@@ -1055,6 +1074,7 @@ struct MANGOS_DLL_DECL npc_violetholddoorAI : public Scripted_NoMovementAI
         NumberOfPortals=0;
         PortalCounter=0;
         FirstPortal=false;
+        isBoss=false;
         for(int i=0;i<=NUMBEROFPORTALS;i++)
             Portal[i]=0;
         for(int i=0;i<4;i++)
@@ -1097,8 +1117,20 @@ struct MANGOS_DLL_DECL npc_violetholddoorAI : public Scripted_NoMovementAI
         GameObject* pDoor = GetClosestGameObjectWithEntry(m_creature,191723,1000.0f);
         switch(action)
         {
+        case CYANIGOSA:
+            if (pDoor)
+                pDoor->SetGoState(GO_STATE_ACTIVE);
+            if (Creature* pSinclari = m_creature->GetMap()->GetCreature(Sinclari))
+            {
+                pSinclari->GetMotionMaster()->MovePoint(0,m_creature->GetPositionX(), m_creature->GetPositionY(), pSinclari->GetPositionZ());
+                pSinclari->MonsterSay("You did it! You held the Blie Dragonflight back and defeated tehir commander. Amazing work!",0,pSinclari->GetGUID());
+            }
+            for (uint8 i=0;i<2;i++)
+                m_creature->SummonCreature(C_GUARD,GuardsCompleted[i][0],GuardsCompleted[i][1],GuardsCompleted[i][2],0,TEMPSUMMON_CORPSE_TIMED_DESPAWN,10000);
+            break;
         case BOSS_DEAD:
             PortalSpawnTimer=97000;
+            isBoss=false;
             break;
         case EVENT_START: //start event
             m_instance->SetData(DATA_CANWIPEAGAIN,0);
@@ -1167,7 +1199,7 @@ struct MANGOS_DLL_DECL npc_violetholddoorAI : public Scripted_NoMovementAI
                     ((TemporarySummon*)tempcreature)->UnSummon();
                     Portal[action]=0;
                     NumberOfPortals--;
-                    if (!NumberOfPortals)
+                    if (!NumberOfPortals && !isBoss)
                     {
                         if (PortalSpawnTimer>3000)
                             PortalSpawnTimer=3000;
@@ -1189,6 +1221,20 @@ struct MANGOS_DLL_DECL npc_violetholddoorAI : public Scripted_NoMovementAI
         
         if (!Spawned)
         {
+            if (m_instance && m_instance->GetData(DATA_COMPLETED))
+            {
+                if (Creature* pSinclari = m_creature->GetMap()->GetCreature(Sinclari))
+                {   
+                    pSinclari->GetMotionMaster()->MovePoint(0,m_creature->GetPositionX(), m_creature->GetPositionY(), pSinclari->GetPositionZ());
+                    pSinclari->MonsterSay("You did it! You held the Blie Dragonflight back and defeated tehir commander. Amazing work!",0,pSinclari->GetGUID());
+                }
+                for (uint8 i=0;i<2;i++)
+                    m_creature->SummonCreature(C_GUARD,GuardsCompleted[i][0],GuardsCompleted[i][1],GuardsCompleted[i][2],0,TEMPSUMMON_CORPSE_TIMED_DESPAWN,10000);
+                Spawned=true;
+                return;
+            }
+            
+
             for (int i=0;i<3;i++)
             {
                 Creature* tempcreature = m_creature->SummonCreature(C_PORTAL,portals[i][0],portals[i][1],portals[i][2],portals[i][3],TEMPSUMMON_MANUAL_DESPAWN,0);
@@ -1278,8 +1324,17 @@ struct MANGOS_DLL_DECL npc_violetholddoorAI : public Scripted_NoMovementAI
             else
             {
                 if(PortalCounter==17)
-                    PortalSpawnTimer=300000;
-                    //Cyanigozsa
+                {
+                    if (Creature* Portal = m_creature->SummonCreature(C_PORTAL,CyanigosaPortal[0][0],CyanigosaPortal[0][1],CyanigosaPortal[0][2],CyanigosaPortal[0][3],TEMPSUMMON_TIMED_DESPAWN,10000))
+                        Portal->AI()->DoAction(CYANIGOSA);
+                    if (Creature* Cyanigosa = m_creature->SummonCreature(C_CYANIGOSA,CyanigosaPortal[1][0],CyanigosaPortal[1][1],CyanigosaPortal[1][2],CyanigosaPortal[1][3],TEMPSUMMON_CORPSE_TIMED_DESPAWN,120000))
+                    {
+                        Cyanigosa->AI()->DoAction(BOSS_PULL);
+                    }
+                    PortalSpawnTimer=(uint32)-1;
+                    PortalCounter++;
+                    m_instance->SetData(DATA_PORTALCOUNTER,PortalCounter);
+                }
                 else
                 {
                     if (Creature* tempcreature=m_creature->SummonCreature(C_PORTAL,BossPortal[0],BossPortal[1],BossPortal[2],BossPortal[3],TEMPSUMMON_MANUAL_DESPAWN,0))
@@ -1287,6 +1342,7 @@ struct MANGOS_DLL_DECL npc_violetholddoorAI : public Scripted_NoMovementAI
                         Portal[NUMBEROFPORTALS]=tempcreature->GetGUID();
                         PortalSpawnTimer=(uint32)-1;
                         tempcreature->AI()->DoAction(BOSS);
+                        isBoss=true;
                     }
                     PortalCounter++;
                     m_instance->SetData(DATA_PORTALCOUNTER,PortalCounter);
@@ -1294,9 +1350,7 @@ struct MANGOS_DLL_DECL npc_violetholddoorAI : public Scripted_NoMovementAI
             }
         }
         else PortalSpawnTimer-=diff;
-    }
-
-            
+    }            
 };
 
 #define SPELL_TELEPORT 51347
@@ -1749,6 +1803,13 @@ struct MANGOS_DLL_DECL npc_violetholdguardAI : public npc_escortAI
 
 bool GossipHello_npc_sinclari(Player *player, Creature *_Creature)
 {
+    ScriptedInstance* m_instance = (ScriptedInstance*)_Creature->GetInstanceData();
+    if (m_instance)
+        if (m_instance->GetData(DATA_COMPLETED))
+        {
+            player->SEND_GOSSIP_MENU(/*?????*/8855, _Creature->GetGUID());
+            return true;
+        }
     if (!((npc_sinclariAI*)_Creature->AI())->EventActive)
     {
         player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT,"Activate the crystals when we get in trouble, right.",GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
@@ -1757,7 +1818,7 @@ bool GossipHello_npc_sinclari(Player *player, Creature *_Creature)
     else
     {
         player->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT,"I\'m not fighting, so send me in now!",GOSSIP_SENDER_MAIN,GOSSIP_ACTION_INFO_DEF+3);
-        player->SEND_GOSSIP_MENU(8855,_Creature->GetGUID());//gossip text isn't implemented in DB, todo
+        player->SEND_GOSSIP_MENU(14271,_Creature->GetGUID());
     }
     return true;
 }
@@ -1773,6 +1834,7 @@ bool GossipSelect_npc_sinclari(Player *player, Creature *_Creature, uint32 sende
     case GOSSIP_ACTION_INFO_DEF+2:
         ((npc_sinclariAI*)_Creature->AI())->EventActivate();
         player->CLOSE_GOSSIP_MENU();
+        break;
     case GOSSIP_ACTION_INFO_DEF+3:
         player->TeleportTo(_Creature->GetMapId(),TeleIn[0],TeleIn[1],TeleIn[2],TeleIn[3]);
         player->CLOSE_GOSSIP_MENU();

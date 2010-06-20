@@ -2056,6 +2056,10 @@
 					Name="violet_hold"
 					>
 					<File
+						RelativePath="..\scripts\northrend\violet_hold\boss_cyanigosa.cpp"
+						>
+					</File>
+					<File
 						RelativePath="..\scripts\northrend\violet_hold\boss_erekem.cpp"
 						>
 					</File>
