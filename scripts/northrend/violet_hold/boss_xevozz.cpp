@@ -2,6 +2,8 @@
 #include "violethold.h"
 #include "escort_ai.h"
 
+//koule radsi predelat na EscortAI, az bude cas
+
 static float XevozzOutWP[2][3]=
 {
     {1900.01f, 831.79f, 38.7323f},
@@ -255,7 +257,7 @@ struct MANGOS_DLL_DECL mob_ethereal_sphereAI : public ScriptedAI
                 if (!PlayerList.isEmpty())
                     for (Map::PlayerList::const_iterator i = PlayerList.begin(); i != PlayerList.end(); ++i)
                         if (i->getSource()->isAlive())
-                            DoTeleportPlayer(i->getSource(), m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ(), i->getSource()->GetOrientation());
+                            DoTeleportPlayer(i->getSource(), m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ()+1, i->getSource()->GetOrientation());//+1 = preventing falling under texture
             }
 
             m_uiSummonPlayers_Timer = urand(33000, 35000);

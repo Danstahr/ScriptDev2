@@ -1223,11 +1223,7 @@ struct MANGOS_DLL_DECL npc_violetholddoorAI : public Scripted_NoMovementAI
         {
             if (m_instance && m_instance->GetData(DATA_COMPLETED))
             {
-                if (Creature* pSinclari = m_creature->GetMap()->GetCreature(Sinclari))
-                {   
-                    pSinclari->GetMotionMaster()->MovePoint(0,m_creature->GetPositionX(), m_creature->GetPositionY(), pSinclari->GetPositionZ());
-                    pSinclari->MonsterSay("You did it! You held the Blie Dragonflight back and defeated tehir commander. Amazing work!",0,pSinclari->GetGUID());
-                }
+                m_creature->SummonCreature(C_SINCLARI,m_creature->GetPositionX(), m_creature->GetPositionY(),GuardsCompleted[0][2],0,TEMPSUMMON_CORPSE_TIMED_DESPAWN,10000);
                 for (uint8 i=0;i<2;i++)
                     m_creature->SummonCreature(C_GUARD,GuardsCompleted[i][0],GuardsCompleted[i][1],GuardsCompleted[i][2],0,TEMPSUMMON_CORPSE_TIMED_DESPAWN,10000);
                 Spawned=true;

@@ -321,6 +321,8 @@ struct MANGOS_DLL_DECL instance_violethold : public ScriptedInstance
                 while (1)
                 {
                     uint8 rnd=rand()%PRISONBOSSES;
+                    if (rnd==DATA_ICHORON)
+                        continue;
                     if (!BossStatus[rnd])
                     {
                         BossStatus[rnd]=IN_PROGRESS;
@@ -337,6 +339,8 @@ struct MANGOS_DLL_DECL instance_violethold : public ScriptedInstance
                 while (1)
                 {
                     uint8 rnd=rand()%PRISONBOSSES;
+                    if (rnd==DATA_ICHORON)
+                        continue;
                     if (!BossStatus[rnd])
                     {
                         BossStatus[rnd]=IN_PROGRESS;
