@@ -957,10 +957,8 @@ struct MANGOS_DLL_DECL npc_sinclariAI : public npc_escortAI
             break;
         case 1:
             m_creature->MonsterYell("Prison guards, we are leaving! These adventurers are taking over! Go go go!",0,m_creature->GetGUID());
-            /*if (m_instance->GetData64(DEFSYSTEM_GUID))
-            {*/
+            if (m_instance)
                 m_instance->SetData(DATA_DEFSYSTEM_TRIGGER,0);
-            //}
             break;
         case 2:
             RotateTimer=1000;
