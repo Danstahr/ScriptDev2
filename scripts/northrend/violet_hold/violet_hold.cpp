@@ -1321,7 +1321,7 @@ struct MANGOS_DLL_DECL npc_violetholddoorAI : public Scripted_NoMovementAI
                 {
                     if (Creature* Portal = m_creature->SummonCreature(C_PORTAL,CyanigosaPortal[0][0],CyanigosaPortal[0][1],CyanigosaPortal[0][2],CyanigosaPortal[0][3],TEMPSUMMON_TIMED_DESPAWN,10000))
                         Portal->AI()->DoAction(CYANIGOSA);
-                    if (Creature* Cyanigosa = m_creature->SummonCreature(C_CYANIGOSA,CyanigosaPortal[1][0],CyanigosaPortal[1][1],CyanigosaPortal[1][2],CyanigosaPortal[1][3],TEMPSUMMON_CORPSE_TIMED_DESPAWN,120000))
+                    if (Creature* Cyanigosa = m_creature->SummonCreature(C_CYANIGOSA,CyanigosaPortal[1][0],CyanigosaPortal[1][1],CyanigosaPortal[1][2],CyanigosaPortal[1][3],TEMPSUMMON_CORPSE_TIMED_DESPAWN,60000))
                     {
                         Cyanigosa->AI()->DoAction(BOSS_PULL);
                     }

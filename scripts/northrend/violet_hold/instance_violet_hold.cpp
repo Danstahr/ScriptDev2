@@ -50,8 +50,10 @@ struct MANGOS_DLL_DECL instance_violethold : public ScriptedInstance
             for (std::list<Creature*>::const_iterator i=Creatures.begin();i!=Creatures.end();++i)
             {
                 if (CausedByWipe)
+                {
                     if ((*i)->isAlive())
                         (*i)->RemoveFromWorld();
+                }
                 else
                     (*i)->DealDamage((*i),DEF_SYSTEM_DAMAGE_AMOUNT,NULL,DIRECT_DAMAGE,SPELL_SCHOOL_MASK_ARCANE,NULL,false);
             }
@@ -395,7 +397,10 @@ struct MANGOS_DLL_DECL instance_violethold : public ScriptedInstance
             PortalCounter=data;
             DoUpdateWorldState(3810, data);
             if (PortalCounter==1)
+            {
                 CheckCrystals();
+                DoUpdateWorldState(3815,SealIntegrity);
+            }
             break;
         case DATA_TICKCOUNTER:
             TickCounter=data;
