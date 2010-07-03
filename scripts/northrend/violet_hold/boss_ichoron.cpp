@@ -3,7 +3,7 @@
 #include "violethold.h"
 
 
-//DIVNEJ!!! potreba preskriptovat
+//elemental bum
 
 struct Locations
 {
@@ -69,7 +69,6 @@ struct MANGOS_DLL_DECL boss_ichoronAI : public npc_escortAI
 
     uint32 m_uiBuubleChecker_Timer;
     uint32 m_uiWaterBoltVolley_Timer;
-    uint32 m_uiShowup_Counter;
     uint16 BossStartTimer;
 
     void Reset()
@@ -78,26 +77,31 @@ struct MANGOS_DLL_DECL boss_ichoronAI : public npc_escortAI
         m_bIsFrenzy = false;
         m_uiBuubleChecker_Timer = 1000;
         m_uiWaterBoltVolley_Timer = urand(10000, 15000);
-        m_uiShowup_Counter = 0;
         BossStartTimer=0;
-
-        m_creature->SetVisibility(VISIBILITY_ON);
+        m_creature->SetStandState(UNIT_STAND_STATE_STAND);
         DespawnWaterElements();
     }
 
     void Aggro(Unit* pWho)
     {
         DoScriptText(SAY_AGGRO, m_creature);
+        DoCast(m_creature,SPELL_PROTECTIVE_BUBBLE);
+        DoScriptText(SAY_BUBBLE,m_creature);
     }
 
     void WaterElementHit()
     {
-        m_creature->SetHealth(m_creature->GetHealth() + m_creature->GetMaxHealth() * 0.01);
+        if ((m_creature->GetHealth() + m_creature->GetMaxHealth() * 0.03) > m_creature->GetMaxHealth())
+            m_creature->SetHealth(m_creature->GetMaxHealth());
+        else
+            m_creature->SetHealth(m_creature->GetHealth() + m_creature->GetMaxHealth() * 0.03);
         if (m_bIsExploded)
         {
             DoCast(m_creature, SPELL_PROTECTIVE_BUBBLE);
+            DoScriptText(SAY_BUBBLE,m_creature);
             m_bIsExploded = false;
-            m_creature->SetVisibility(VISIBILITY_ON);
+            m_creature->SetStandState(UNIT_STAND_STATE_STAND);
+            m_creature->RemoveAurasDueToSpell(SPELL_DRAINED);
             m_creature->GetMotionMaster()->MoveChase(m_creature->getVictim());
         }
     }
@@ -133,6 +137,7 @@ struct MANGOS_DLL_DECL boss_ichoronAI : public npc_escortAI
         {
         case BOSS_PULL:
             //m_creature->MonsterSay("Prej me pullnuli",0,m_creature->GetGUID());
+            DoScriptText(SAY_SPAWN,m_creature);
             for (uint8 i=0;i<2;i++)
             {
                 if (!i)
@@ -189,17 +194,18 @@ struct MANGOS_DLL_DECL boss_ichoronAI : public npc_escortAI
                 {
                     if (!m_creature->HasAura(SPELL_PROTECTIVE_BUBBLE))
                     {
+                        DoScriptText(SAY_SHATTER,m_creature);
                         DoCast(m_creature, m_bIsRegularMode ? SPELL_WATER_BLAST_H : SPELL_WATER_BLAST);
-                        //DoCast(m_creature, SPELL_DRAINED);
+                        DoCast(m_creature, SPELL_DRAINED);
+                        m_creature->SetHealth(m_creature->GetHealth() - m_creature->GetMaxHealth()*0.3);
+                        m_creature->SetStandState(UNIT_STAND_STATE_DEAD);
                         m_bIsExploded = true;
-                        m_uiShowup_Counter = 0;
-                        m_creature->AttackStop();
-                        m_creature->SetVisibility(VISIBILITY_OFF);
+                     
                         for(uint8 i = 0; i < 10; i++)
                         {
-                            //int tmp = urand(0, 5);
-                            //m_creature->SummonCreature(NPC_ICHOR_GLOBULE, PortalLoc[tmp].x, PortalLoc[tmp].y, PortalLoc[tmp].z, 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
-                            m_creature->SummonCreature(NPC_ICHOR_GLOBULE, m_creature->GetPositionX()-10+rand()%20, m_creature->GetPositionY()-10+rand()%20, m_creature->GetPositionZ(), 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
+                            int tmp = i/2;
+                            m_creature->SummonCreature(NPC_ICHOR_GLOBULE, PortalLoc[tmp].x, PortalLoc[tmp].y, PortalLoc[tmp].z, 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
+                            //m_creature->SummonCreature(NPC_ICHOR_GLOBULE, m_creature->GetPositionX()-10+rand()%20, m_creature->GetPositionY()-10+rand()%20, m_creature->GetPositionZ(), 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
                         }
                     }
                     m_uiBuubleChecker_Timer = 3000;
@@ -207,7 +213,6 @@ struct MANGOS_DLL_DECL boss_ichoronAI : public npc_escortAI
                 else
                 {
                     bool bIsWaterElementsAlive = false;
-                    ++m_uiShowup_Counter;
                     if (!m_lWaterElementsGUIDList.empty())
                     {
                         for(std::list<uint64>::iterator itr = m_lWaterElementsGUIDList.begin(); itr != m_lWaterElementsGUIDList.end(); ++itr)
@@ -215,12 +220,13 @@ struct MANGOS_DLL_DECL boss_ichoronAI : public npc_escortAI
                                 if (pTemp->isAlive())
                                     bIsWaterElementsAlive = true;
                     }
-                    if (!bIsWaterElementsAlive || m_uiShowup_Counter > 20)
+                    if (!bIsWaterElementsAlive || !m_creature->HasAura(SPELL_DRAINED))
                     {
                         DoCast(m_creature, SPELL_PROTECTIVE_BUBBLE);
+                        DoScriptText(SAY_BUBBLE,m_creature);
                         m_bIsExploded = false;
-                        m_uiShowup_Counter = 0;
-                        m_creature->SetVisibility(VISIBILITY_ON);
+                        m_creature->SetStandState(UNIT_STAND_STATE_STAND);
+                        m_creature->RemoveAurasDueToSpell(SPELL_DRAINED);
                         m_creature->GetMotionMaster()->MoveChase(m_creature->getVictim());
                     }
                     m_uiBuubleChecker_Timer = 1000;
@@ -238,7 +244,7 @@ struct MANGOS_DLL_DECL boss_ichoronAI : public npc_escortAI
             }
             else m_uiWaterBoltVolley_Timer -= uiDiff;
 
-            if (!m_bIsFrenzy && (m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) < 25)
+            if (!m_bIsFrenzy && (m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) < 30)
             {
                 DoCast(m_creature, m_bIsRegularMode ? SPELL_FRENZY_H : SPELL_FRENZY);
                 m_bIsFrenzy = true;
@@ -256,9 +262,9 @@ struct MANGOS_DLL_DECL boss_ichoronAI : public npc_escortAI
         if (m_instance)
         {
             if (!m_bIsRegularMode)
-                m_instance->SetData(DATA_EREKEM,SPECIAL);
+                m_instance->SetData(DATA_ICHORON,SPECIAL);
             else
-                m_instance->SetData(DATA_EREKEM,DONE);
+                m_instance->SetData(DATA_ICHORON,DONE);
             if (Creature* pCreature = m_creature->GetMap()->GetCreature(m_instance->GetData64(DOOR_GUID)))
                 pCreature->AI()->DoAction(BOSS_DEAD);
         }

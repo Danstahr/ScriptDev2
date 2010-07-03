@@ -11,6 +11,18 @@
 #define C_DEFSYSTEM 30837
 #define DEF_SYSTEM_DAMAGE_AMOUNT 13000
 
+const uint32 BossPlaceholder[PRISONBOSSES]={32237,32235,32230,32226,32234,32231};
+
+const float BossLoc[PRISONBOSSES][4]=
+{
+    {1844.56f, 748.708f, 38.7420f, 0.820305f},//lavanthor
+    {1893.90f, 728.126f, 47.7502f, 1.605700f},//moragg
+    {1934.15f, 860.946f, 47.2950f, 3.979350f},//zuramat
+    {1871.46f, 871.036f, 43.4152f, 5.113810f},//erekem
+    {1942.04f, 749.523f, 30.9523f, 2.303830f},//ichoron
+    {1908.42f, 845.850f, 38.7195f, 4.852020f}
+};
+
 struct MANGOS_DLL_DECL instance_violethold : public ScriptedInstance
 {
     instance_violethold(Map* pMap) : ScriptedInstance(pMap) 
@@ -80,14 +92,13 @@ struct MANGOS_DLL_DECL instance_violethold : public ScriptedInstance
     {
         Creature* Door = instance->GetCreature(DoorSealGUID);
 
+        if (!Door)
+            return;
+
         for (uint8 i=0;i<PRISONBOSSES;i++)
         {
             //close all cells etc.
-            Creature* Door = instance->GetCreature(DoorSealGUID);
-
-            if (!Door)
-                break;
-
+            
             switch(i)
             {
             case 0:
@@ -130,6 +141,29 @@ struct MANGOS_DLL_DECL instance_violethold : public ScriptedInstance
                         Boss->Respawn();
                         Boss->setFaction(35);
                     }
+                }
+            }
+
+            if (BossStatus[i]==SPECIAL)
+            {
+                float x, y, z, o;
+                x=BossLoc[i][0];
+                y=BossLoc[i][1];
+                z=BossLoc[i][2];
+                o=BossLoc[i][3];
+
+                Creature* Boss = instance->GetCreature(GetData64(i));
+                if (Boss)
+                {
+                    Boss->SetRespawnTime((uint32)-1);
+                    Boss->GetRespawnCoord(x,y,z,&o);
+                    Boss->setFaction(35);
+                    Boss->SetVisibility(VISIBILITY_OFF);
+                }
+                if (Creature* NewBoss = Door->SummonCreature(BossPlaceholder[i],x,y,z,o,TEMPSUMMON_CORPSE_TIMED_DESPAWN,120000))
+                {
+                    NewBoss->setFaction(35);
+                    SetData64(i,NewBoss->GetGUID());
                 }
             }
         }
@@ -323,8 +357,6 @@ struct MANGOS_DLL_DECL instance_violethold : public ScriptedInstance
                 while (1)
                 {
                     uint8 rnd=rand()%PRISONBOSSES;
-                    if (rnd==DATA_ICHORON)
-                        continue;
                     if (!BossStatus[rnd])
                     {
                         BossStatus[rnd]=IN_PROGRESS;
@@ -341,8 +373,6 @@ struct MANGOS_DLL_DECL instance_violethold : public ScriptedInstance
                 while (1)
                 {
                     uint8 rnd=rand()%PRISONBOSSES;
-                    if (rnd==DATA_ICHORON)
-                        continue;
                     if (!BossStatus[rnd])
                     {
                         BossStatus[rnd]=IN_PROGRESS;
@@ -357,6 +387,26 @@ struct MANGOS_DLL_DECL instance_violethold : public ScriptedInstance
             return 0;
         }
     }
+
+    void SetData64(uint32 action, uint64 data)
+    {
+        switch(action)
+        {
+            case LAVANTHOR_GUID:
+                LavanthorGUID=data;
+            case MORAGG_GUID:
+                MoraggGUID=data;
+            case ZURAMAT_GUID:
+                ZuramatGUID=data;
+            case EREKEM_GUID:
+                ErekemGUID=data;
+            case ICHORON_GUID:
+                IchoronGUID=data;
+            case XEVOZZ_GUID:
+                XevozzGUID=data;
+        }
+    }
+
 
     uint64 GetData64(uint32 action)
     {
