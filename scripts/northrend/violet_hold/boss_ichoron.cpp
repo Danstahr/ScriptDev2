@@ -2,9 +2,6 @@
 #include "escort_ai.h"
 #include "violethold.h"
 
-
-//elemental bum
-
 struct Locations
 {
     float x, y, z;
@@ -123,7 +120,6 @@ struct MANGOS_DLL_DECL boss_ichoronAI : public npc_escortAI
             if (Creature* pTemp = (Creature*)Unit::GetUnit(*m_creature, *itr))
             {
                 if (pTemp->isAlive())
-                    //pTemp->ForcedDespawn();
                     pTemp->DealDamage(pTemp, pTemp->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
             }
         }
@@ -136,7 +132,6 @@ struct MANGOS_DLL_DECL boss_ichoronAI : public npc_escortAI
         switch (action)
         {
         case BOSS_PULL:
-            //m_creature->MonsterSay("Prej me pullnuli",0,m_creature->GetGUID());
             DoScriptText(SAY_SPAWN,m_creature);
             for (uint8 i=0;i<2;i++)
             {
@@ -205,7 +200,6 @@ struct MANGOS_DLL_DECL boss_ichoronAI : public npc_escortAI
                         {
                             int tmp = i/2;
                             m_creature->SummonCreature(NPC_ICHOR_GLOBULE, PortalLoc[tmp].x, PortalLoc[tmp].y, PortalLoc[tmp].z, 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
-                            //m_creature->SummonCreature(NPC_ICHOR_GLOBULE, m_creature->GetPositionX()-10+rand()%20, m_creature->GetPositionY()-10+rand()%20, m_creature->GetPositionZ(), 0, TEMPSUMMON_CORPSE_DESPAWN, 0);
                         }
                     }
                     m_uiBuubleChecker_Timer = 3000;
@@ -292,9 +286,11 @@ struct MANGOS_DLL_DECL mob_ichor_globuleAI : public ScriptedAI
     ScriptedInstance *m_pInstance;
 
     uint32 m_uiRangeCheck_Timer;
+    bool ShouldBeDead;
 
     void Reset()
     {
+        ShouldBeDead=false;
         m_uiRangeCheck_Timer = 1000;
     }
 
@@ -305,6 +301,9 @@ struct MANGOS_DLL_DECL mob_ichor_globuleAI : public ScriptedAI
 
     void UpdateAI(const uint32 uiDiff)
     {
+        if (ShouldBeDead)
+            m_creature->DealDamage(m_creature, m_creature->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+
         if (m_uiRangeCheck_Timer < uiDiff)
         {
             if (m_pInstance)
@@ -314,8 +313,9 @@ struct MANGOS_DLL_DECL mob_ichor_globuleAI : public ScriptedAI
                     float fDistance = m_creature->GetDistance2d(pIchoron);
                     if (fDistance <= 2)
                     {
+                        DoCast(m_creature,SPELL_SPLASH);
                         ((boss_ichoronAI*)pIchoron->AI())->WaterElementHit();
-                        m_creature->DealDamage(m_creature, m_creature->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+                        ShouldBeDead=true;                        
                     }
                 }
             }
@@ -324,10 +324,16 @@ struct MANGOS_DLL_DECL mob_ichor_globuleAI : public ScriptedAI
         else m_uiRangeCheck_Timer -= uiDiff;
     }
 
-    void JustDied(Unit* pKiller)
+    void DamageTaken(Unit* attacker,uint32 &damage)
     {
-        DoCast(m_creature, SPELL_SPLASH);
+        if (damage>=m_creature->GetHealth())
+        {
+            ShouldBeDead=true;
+            damage=0;
+            DoCast(m_creature, SPELL_SPLASH);
+        }
     }
+
 };
 
 CreatureAI* GetAI_boss_ichoron(Creature* pCreature)

@@ -81,6 +81,7 @@ struct MANGOS_DLL_DECL boss_gal_darahAI : public ScriptedAI
         uiPhaseCounter = 0;
 
         Phase = TROLL;
+        m_creature->SetDisplayId(27061);
 
         if (pInstance)
             pInstance->SetData(DATA_GAL_DARAH_EVENT, NOT_STARTED);
@@ -106,6 +107,7 @@ struct MANGOS_DLL_DECL boss_gal_darahAI : public ScriptedAI
                 if (uiPhaseCounter == 2)
                 {
                     //FIX: implement transformation
+                    m_creature->SetDisplayId(26265);
                     Phase = RHINO;
                     uiPhaseCounter = 0;
                     DoScriptText(SAY_TRANSFORM_1,m_creature);
@@ -144,6 +146,7 @@ struct MANGOS_DLL_DECL boss_gal_darahAI : public ScriptedAI
                 if (uiPhaseCounter == 2)
                 {
                     //FIX: implement transformation
+                    m_creature->SetDisplayId(27061);
                     Phase = TROLL;
                     uiPhaseCounter = 0;
                     DoScriptText(SAY_TRANSFORM_2,m_creature);

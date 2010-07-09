@@ -277,6 +277,7 @@ extern void AddSC_boss_drakkari_colossus();                          //gundrak
 extern void AddSC_boss_gal_darah();
 extern void AddSC_boss_moorabi();
 extern void AddSC_boss_slad_ran();
+extern void AddSC_boss_eck();
 extern void AddSC_instance_gundrak();
 extern void AddSC_boss_anubrekhan();                        //naxxramas
 extern void AddSC_boss_four_horsemen();
@@ -692,6 +693,7 @@ void AddScripts()
     AddSC_boss_gal_darah();
     AddSC_boss_moorabi();
     AddSC_boss_slad_ran();
+    AddSC_boss_eck();
     AddSC_instance_gundrak();
     AddSC_boss_anubrekhan();                                //naxxramas
     AddSC_boss_four_horsemen();
