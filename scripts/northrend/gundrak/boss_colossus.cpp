@@ -150,10 +150,9 @@ struct MANGOS_DLL_DECL boss_drakkari_colossusAI : public ScriptedAI
         SetActive(false);
     }
 
-    void SpellHit(Unit* pCaster, const SpellEntry* pSpellInfo)
+    void DoAction(uint32)
     {
-        if (pSpellInfo->Id == SPELL_MERGE && pCaster != m_creature)
-            SetActive(true);
+        SetActive(true);
     }
 
     void AttackStart(Unit* who)
@@ -305,6 +304,8 @@ struct MANGOS_DLL_DECL boss_drakkari_elementalAI : public ScriptedAI
             if (DelayedVisibility<=diff)
             {
                 m_creature->SetVisibility(VISIBILITY_OFF);
+                if (Creature* colossus = m_creature->GetMap()->GetCreature(m_pInstance->GetData64(DATA_DRAKKARI_COLOSSUS)))
+                    colossus->AI()->DoAction(1);
                 DelayedVisibility=0;
             }
             else DelayedVisibility-=diff;

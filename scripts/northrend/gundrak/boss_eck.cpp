@@ -147,7 +147,7 @@ struct MANGOS_DLL_DECL npc_ruins_dwellerAI : public ScriptedAI
         {
             pInstance->SetData64(DATA_RUIN_DWELLER_DIED,m_creature->GetGUID());
             if (pInstance->GetData(DATA_ALIVE_RUIN_DWELLERS) == 0)
-                m_creature->SummonCreature(CREATURE_ECK, EckSpawnPoint[0],EckSpawnPoint[1],EckSpawnPoint[2],EckSpawnPoint[3], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 300*IN_MILISECONDS);
+                m_creature->SummonCreature(CREATURE_ECK, EckSpawnPoint[0],EckSpawnPoint[1],EckSpawnPoint[2],EckSpawnPoint[3], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 60*IN_MILISECONDS);
         }
     }
 };
