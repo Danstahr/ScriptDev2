@@ -58,9 +58,17 @@ enum
     SPELL_SHATTER_N                         = 52429,
     SPELL_SHATTER_H                         = 59527,
 
+    //Slag
+    SPELL_EXPLODE                           = 65129,
+    SPELL_MELT_ARMOR                        = 61509,
+    SPELL_MELT_ARMOR_H                      = 61510,
+    SPELL_BLAST_WAVE_H                      = 22424,
+
     NPC_VOLKHAN_ANVIL                       = 28823,
     NPC_MOLTEN_GOLEM                        = 28695,
     NPC_BRITTLE_GOLEM                       = 28681,
+
+    CREATURE_SLAG                           = 28585,
 
     POINT_ID_ANVIL                          = 0,
     MAX_GOLEM                               = 2
@@ -79,6 +87,12 @@ struct MANGOS_DLL_DECL boss_volkhanAI : public ScriptedAI
         Reset();
     }
 
+    struct Slags
+    {
+        Creature* Slag;
+        uint32 RespawnTime;
+    };
+
     ScriptedInstance* m_pInstance;
 
     std::list<uint64> m_lGolemGUIDList;
@@ -93,6 +107,8 @@ struct MANGOS_DLL_DECL boss_volkhanAI : public ScriptedAI
     uint32 m_uiShatter_Timer;
 
     uint32 m_uiHealthAmountModifier;
+
+    std::list<Slags> SlagsToRespawn;
 
     void Reset()
     {
@@ -141,6 +157,15 @@ struct MANGOS_DLL_DECL boss_volkhanAI : public ScriptedAI
 
         if (m_pInstance)
             m_pInstance->SetData(TYPE_VOLKHAN, DONE);
+
+        std::list<Creature*> SlagList;
+
+        GetCreatureListWithEntryInGrid(SlagList,m_creature,CREATURE_SLAG,1000.0f);
+        for (std::list<Creature*>::const_iterator i = SlagList.begin();i!=SlagList.end();++i)
+        {
+            (*i)->SetRespawnTime(86400);
+            (*i)->ForcedDespawn();
+        }
     }
 
     void KilledUnit(Unit* pVictim)
@@ -206,8 +231,36 @@ struct MANGOS_DLL_DECL boss_volkhanAI : public ScriptedAI
         }
     }
 
+    void AddSlagToRespawn(Creature* pSlag)
+    {
+        if (pSlag && pSlag->GetEntry()==CREATURE_SLAG)
+        {
+            Slags SlagToPush;
+            SlagToPush.Slag = pSlag;
+            SlagToPush.RespawnTime = 10000;
+            SlagsToRespawn.push_back(SlagToPush);
+        }
+    }
+
     void UpdateAI(const uint32 uiDiff)
     {
+        std::list<Slags>::iterator i = SlagsToRespawn.begin();
+        while (i != SlagsToRespawn.end() && SlagsToRespawn.size() > 0)
+        {
+            if ((*i).RespawnTime < uiDiff)
+            {
+                Creature* pSlag = (*i).Slag;
+                if (pSlag)
+                    pSlag->Respawn();
+                SlagsToRespawn.pop_front();
+            }
+            else (*i).RespawnTime-=uiDiff;
+            
+            if (SlagsToRespawn.size();!=0)
+                ++i;
+            else break;
+        }
+
         //Return since we have no target
         if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
             return;
@@ -462,6 +515,82 @@ CreatureAI* GetAI_mob_molten_golem(Creature* pCreature)
     return new mob_molten_golemAI(pCreature);
 }
 
+struct MANGOS_DLL_DECL mob_slagAI : public ScriptedAI
+{
+    mob_slagAI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        m_pInstance = (ScriptedInstance*)pCreature->GetInstanceData();
+        m_bIsRegularMode = pCreature->GetMap()->IsRegularDifficulty();
+        Reset();
+    }
+
+    ScriptedInstance* m_pInstance;
+
+    uint16 uiMeltArmorTimer;
+    uint16 uiBlastWaveTimer;
+    bool m_bIsRegularMode;
+    bool ShouldBeDead;
+
+    void Reset()
+    {
+        uiMeltArmorTimer=urand(0,5000);
+        uiBlastWaveTimer=urand(0,3000);
+        ShouldBeDead=false;
+    }
+
+    void JustDied(Unit* )
+    {
+        if (m_pInstance && m_pInstance->GetData(TYPE_VOLKHAN)!=DONE)
+        {
+            Creature* Volkhan = m_creature->GetMap()->GetCreature(m_pInstance->GetData64(DATA_VOLKHAN));
+            if (Volkhan)
+                ((boss_volkhanAI*)Volkhan->AI())->AddSlagToRespawn(m_creature);
+        }
+    }
+
+    void DamageTaken(Unit* ,uint32& damage)
+    {
+        if (damage>=m_creature->GetHealth())
+        {
+            damage=0;
+            DoCast(m_creature,SPELL_EXPLODE);
+            ShouldBeDead=true;
+        }
+    }
+
+    void UpdateAI(const uint32 uiDiff)
+    {
+        if (ShouldBeDead)
+            m_creature->DealDamage(m_creature,m_creature->GetHealth(),NULL,DIRECT_DAMAGE,SPELL_SCHOOL_MASK_ARCANE,NULL,false);   
+
+        if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
+            return;
+
+        if (uiMeltArmorTimer<uiDiff)
+        {
+            DoCast(m_creature,m_bIsRegularMode ? SPELL_MELT_ARMOR : SPELL_MELT_ARMOR_H);
+            uiMeltArmorTimer=urand(5000,10000);
+        }
+        else uiMeltArmorTimer-=uiDiff;
+
+        if (uiBlastWaveTimer<uiDiff)
+        {
+            DoCast(m_creature,m_bIsRegularMode ? SPELL_BLAST_WAVE : SPELL_BLAST_WAVE_H);
+            uiBlastWaveTimer=urand(5000,7000);
+        }
+        else uiBlastWaveTimer-=uiDiff;
+
+        DoMeleeAttackIfReady();
+    }
+
+};
+
+CreatureAI* GetAI_mob_slag(Creature* pCreature)
+{
+    return new mob_slagAI(pCreature);
+}
+
+
 void AddSC_boss_volkhan()
 {
     Script *newscript;
@@ -480,5 +609,10 @@ void AddSC_boss_volkhan()
     newscript = new Script;
     newscript->Name = "mob_molten_golem";
     newscript->GetAI = &GetAI_mob_molten_golem;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "mob_slag";
+    newscript->GetAI = &GetAI_mob_slag;
     newscript->RegisterSelf();
 }
