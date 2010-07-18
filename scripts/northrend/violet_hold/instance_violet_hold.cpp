@@ -463,7 +463,7 @@ struct MANGOS_DLL_DECL instance_violethold : public ScriptedInstance
             break;
         }
 
-        if (data == DONE)
+        if (data == DONE || data == SPECIAL)
         {
             OUT_SAVE_INST_DATA;
 

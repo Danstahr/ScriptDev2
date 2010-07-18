@@ -365,6 +365,10 @@ struct MANGOS_DLL_DECL mob_spark_of_ionarAI : public ScriptedAI
                 m_creature->ForcedDespawn();
         }
     }
+
+    void UpdateAI(const uint32 )
+    {
+    }
 };
 
 CreatureAI* GetAI_mob_spark_of_ionar(Creature* pCreature)
