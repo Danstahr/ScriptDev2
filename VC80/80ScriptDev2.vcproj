@@ -489,6 +489,10 @@
 					>
 				</File>
 				<File
+					RelativePath="..\scripts\eastern_kingdoms\swamp_of_sorrows.cpp"
+					>
+				</File>
+				<File
 					RelativePath="..\scripts\eastern_kingdoms\tirisfal_glades.cpp"
 					>
 				</File>
@@ -609,6 +613,14 @@
 					</File>
 					<File
 						RelativePath="..\scripts\eastern_kingdoms\blackrock_spire\boss_warmaster_voone.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\scripts\eastern_kingdoms\blackrock_spire\instance_blackrock_spire.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\scripts\eastern_kingdoms\blackrock_spire\blackrock_spire.h"
 						>
 					</File>
 				</Filter>
@@ -1567,6 +1579,10 @@
 						RelativePath="..\scripts\kalimdor\wailing_caverns\instance_wailing_caverns.cpp"
 						>
 					</File>
+					<File
+						RelativePath="..\scripts\kalimdor\wailing_caverns\wailing_caverns.h"
+						>
+					</File>
 				</Filter>
 				<Filter
 					Name="zulfarrak"
@@ -1989,6 +2005,26 @@
 					</File>
 					<File
 						RelativePath="..\scripts\northrend\obsidian_sanctum\obsidian_sanctum.h"
+						>
+					</File>
+				</Filter>
+				<Filter
+					Name="ruby_sanctum"
+					>
+					<File
+						RelativePath="..\scripts\northrend\ruby_sanctum\boss_halion.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\scripts\northrend\ruby_sanctum\boss_saviana.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\scripts\northrend\ruby_sanctum\boss_baltharus.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\scripts\northrend\ruby_sanctum\boss_zarithian.cpp"
 						>
 					</File>
 				</Filter>

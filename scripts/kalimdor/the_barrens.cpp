@@ -158,7 +158,7 @@ bool QuestAccept_npc_gilthares(Player* pPlayer, Creature* pCreature, const Quest
         DoScriptText(SAY_GIL_START, pCreature, pPlayer);
 
         if (npc_giltharesAI* pEscortAI = dynamic_cast<npc_giltharesAI*>(pCreature->AI()))
-            pEscortAI->Start(false, false, pPlayer->GetGUID(), pQuest);
+            pEscortAI->Start(false, pPlayer->GetGUID(), pQuest);
     }
     return true;
 }
@@ -231,7 +231,7 @@ struct MANGOS_DLL_DECL npc_taskmaster_fizzuleAI : public ScriptedAI
         m_creature->GetMotionMaster()->MoveIdle();
 
         m_creature->setFaction(FACTION_FRIENDLY_F);
-        m_creature->HandleEmoteCommand(EMOTE_ONESHOT_SALUTE);
+        m_creature->HandleEmote(EMOTE_ONESHOT_SALUTE);
     }
 
     void SpellHit(Unit *caster, const SpellEntry *spell)
@@ -364,7 +364,7 @@ struct MANGOS_DLL_DECL npc_twiggy_flatheadAI : public ScriptedAI
 
             pCreature->setFaction(35);
             pCreature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-            pCreature->HandleEmoteCommand(EMOTE_ONESHOT_ROAR);
+            pCreature->HandleEmote(EMOTE_ONESHOT_ROAR);
             AffrayChallenger[i] = pCreature->GetGUID();
         }
     }
@@ -373,7 +373,7 @@ struct MANGOS_DLL_DECL npc_twiggy_flatheadAI : public ScriptedAI
     {
         pUnit->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
         pUnit->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-        pUnit->HandleEmoteCommand(EMOTE_ONESHOT_ROAR);
+        pUnit->HandleEmote(EMOTE_ONESHOT_ROAR);
         pUnit->setFaction(14);
     }
 
@@ -465,7 +465,7 @@ CreatureAI* GetAI_npc_twiggy_flathead(Creature* pCreature)
     return new npc_twiggy_flatheadAI(pCreature);
 }
 
-bool AreaTrigger_at_twiggy_flathead(Player* pPlayer, AreaTriggerEntry* pAt)
+bool AreaTrigger_at_twiggy_flathead(Player* pPlayer, AreaTriggerEntry const* pAt)
 {
     if (!pPlayer->isDead() && pPlayer->GetQuestStatus(QUEST_AFFRAY) == QUEST_STATUS_INCOMPLETE)
     {
@@ -636,7 +636,7 @@ bool QuestAccept_npc_wizzlecranks_shredder(Player* pPlayer, Creature* pCreature,
         pCreature->setFaction(FACTION_RATCHET);
 
         if (npc_wizzlecranks_shredderAI* pEscortAI = dynamic_cast<npc_wizzlecranks_shredderAI*>(pCreature->AI()))
-            pEscortAI->Start(false, true, pPlayer->GetGUID(), pQuest);
+            pEscortAI->Start(true, pPlayer->GetGUID(), pQuest);
     }
     return true;
 }

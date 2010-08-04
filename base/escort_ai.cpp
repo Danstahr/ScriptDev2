@@ -25,7 +25,6 @@ npc_escortAI::npc_escortAI(Creature* pCreature) : ScriptedAI(pCreature),
     m_uiPlayerCheckTimer(1000),
     m_uiWPWaitTimer(2500),
     m_uiEscortState(STATE_ESCORT_NONE),
-    m_bIsActiveAttacker(true),
     m_bIsRunning(false),
     m_pQuestForEscort(NULL),
     m_bCanInstantRespawn(false),
@@ -75,25 +74,29 @@ void npc_escortAI::Aggro(Unit* pEnemy)
 //see followerAI
 bool npc_escortAI::AssistPlayerInCombat(Unit* pWho)
 {
-    if (!pWho || !pWho->getVictim())
+    if (!pWho->getVictim())
         return false;
 
-    //experimental (unknown) flag not present
+    // experimental (unknown) flag not present
     if (!(m_creature->GetCreatureInfo()->type_flags & CREATURE_TYPEFLAGS_CAN_ASSIST))
         return false;
 
-    //not a player
+    // unit state prevents (similar check is done in CanInitiateAttack which also include checking unit_flags. We skip those here)
+    if (m_creature->hasUnitState(UNIT_STAT_STUNNED | UNIT_STAT_DIED))
+        return false;
+
+    // victim of pWho is not a player
     if (!pWho->getVictim()->GetCharmerOrOwnerPlayerOrPlayerItself())
         return false;
 
-    //never attack friendly
+    // never attack friendly
     if (m_creature->IsFriendlyTo(pWho))
         return false;
 
-    //too far away and no free sight?
+    // too far away and no free sight?
     if (m_creature->IsWithinDistInMap(pWho, MAX_PLAYER_DISTANCE) && m_creature->IsWithinLOSInMap(pWho))
     {
-        //already fighting someone?
+        // already fighting someone?
         if (!m_creature->getVictim())
         {
             AttackStart(pWho);
@@ -112,9 +115,13 @@ bool npc_escortAI::AssistPlayerInCombat(Unit* pWho)
 
 void npc_escortAI::MoveInLineOfSight(Unit* pWho)
 {
-    if (m_creature->CanInitiateAttack() && pWho->isTargetableForAttack() && pWho->isInAccessablePlaceFor(m_creature))
+    if (pWho->isTargetableForAttack() && pWho->isInAccessablePlaceFor(m_creature))
     {
+        // AssistPlayerInCombat can start attack, so return if true
         if (HasEscortState(STATE_ESCORT_ESCORTING) && AssistPlayerInCombat(pWho))
+            return;
+
+        if (!m_creature->CanInitiateAttack())
             return;
 
         if (!m_creature->canFly() && m_creature->GetDistanceZ(pWho) > CREATURE_Z_ATTACK_RANGE)
@@ -419,7 +426,7 @@ void npc_escortAI::SetRun(bool bRun)
 }
 
 //TODO: get rid of this many variables passed in function.
-void npc_escortAI::Start(bool bIsActiveAttacker, bool bRun, uint64 uiPlayerGUID, const Quest* pQuest, bool bInstantRespawn, bool bCanLoopPath)
+void npc_escortAI::Start(bool bRun, uint64 uiPlayerGUID, const Quest* pQuest, bool bInstantRespawn, bool bCanLoopPath)
 {
     if (m_creature->getVictim())
     {
@@ -445,7 +452,6 @@ void npc_escortAI::Start(bool bIsActiveAttacker, bool bRun, uint64 uiPlayerGUID,
     }
 
     //set variables
-    m_bIsActiveAttacker = bIsActiveAttacker;
     m_bIsRunning = bRun;
 
     m_uiPlayerGUID = uiPlayerGUID;
@@ -467,7 +473,7 @@ void npc_escortAI::Start(bool bIsActiveAttacker, bool bRun, uint64 uiPlayerGUID,
     //disable npcflags
     m_creature->SetUInt32Value(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_NONE);
 
-    debug_log("SD2: EscortAI started with " SIZEFMTD " waypoints. ActiveAttacker = %d, Run = %d, PlayerGUID = " UI64FMTD, WaypointList.size(), m_bIsActiveAttacker, m_bIsRunning, m_uiPlayerGUID);
+    debug_log("SD2: EscortAI started with " SIZEFMTD " waypoints. Run = %d, PlayerGUID = " UI64FMTD, WaypointList.size(), m_bIsRunning, m_uiPlayerGUID);
 
     CurrentWP = WaypointList.begin();
 

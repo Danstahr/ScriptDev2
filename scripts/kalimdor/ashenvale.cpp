@@ -111,7 +111,8 @@ struct MANGOS_DLL_DECL npc_muglashAI : public npc_escortAI
             if (urand(0, 1))
                 return;
 
-            DoScriptText(SAY_MUG_ON_GUARD, m_creature);
+            if (Player* pPlayer = GetPlayerForEscort())
+                DoScriptText(SAY_MUG_ON_GUARD, m_creature, pPlayer);
         }
     }
 
@@ -210,7 +211,7 @@ bool QuestAccept_npc_muglash(Player* pPlayer, Creature* pCreature, const Quest* 
             DoScriptText(SAY_MUG_START1, pCreature);
             pCreature->setFaction(FACTION_ESCORT_H_PASSIVE);
 
-            pEscortAI->Start(false, false, pPlayer->GetGUID(), pQuest);
+            pEscortAI->Start(false, pPlayer->GetGUID(), pQuest);
         }
     }
 
@@ -291,7 +292,7 @@ bool QuestAccept_npc_ruul_snowhoof(Player* pPlayer, Creature* pCreature, const Q
         pCreature->SetStandState(UNIT_STAND_STATE_STAND);
 
         if (npc_ruul_snowhoofAI* pEscortAI = dynamic_cast<npc_ruul_snowhoofAI*>(pCreature->AI()))
-            pEscortAI->Start(true, false, pPlayer->GetGUID(), pQuest);
+            pEscortAI->Start(false, pPlayer->GetGUID(), pQuest);
     }
     return true;
 }
@@ -406,7 +407,7 @@ bool QuestAccept_npc_torek(Player* pPlayer, Creature* pCreature, const Quest* pQ
         DoScriptText(SAY_READY, pCreature, pPlayer);
 
         if (npc_torekAI* pEscortAI = dynamic_cast<npc_torekAI*>(pCreature->AI()))
-            pEscortAI->Start(true, true, pPlayer->GetGUID(), pQuest);
+            pEscortAI->Start(true, pPlayer->GetGUID(), pQuest);
     }
 
     return true;

@@ -52,7 +52,7 @@ EndContentData */
 enum SpawnType
 {
     SPAWNTYPE_TRIPWIRE_ROOFTOP,                             // no warning, summon creature at smaller range
-    SPAWNTYPE_ALARMBOT,                                     // cast guards mark and summon npc - if player shows up with that buff duration < 5 seconds attack
+    SPAWNTYPE_ALARMBOT                                      // cast guards mark and summon npc - if player shows up with that buff duration < 5 seconds attack
 };
 
 struct SpawnAssociation
@@ -361,16 +361,38 @@ bool QuestComplete_npc_chicken_cluck(Player* pPlayer, Creature* pCreature, const
 ## npc_dancing_flames
 ######*/
 
+enum
+{
+    SPELL_FIERY_SEDUCTION = 47057
+};
+
 struct MANGOS_DLL_DECL npc_dancing_flamesAI : public ScriptedAI
 {
     npc_dancing_flamesAI(Creature* pCreature) : ScriptedAI(pCreature) {Reset();}
 
     void Reset() {}
 
-    void ReceiveEmote(Player* pPlayer, uint32 emote)
+    void ReceiveEmote(Player* pPlayer, uint32 uiEmote)
     {
-        if (emote == TEXTEMOTE_DANCE)
-            m_creature->CastSpell(pPlayer,47057,false);
+        m_creature->SetFacingToObject(pPlayer);
+
+        if (pPlayer->HasAura(SPELL_FIERY_SEDUCTION))
+            pPlayer->RemoveAurasDueToSpell(SPELL_FIERY_SEDUCTION);
+
+        if (pPlayer->IsMounted())
+        {
+            pPlayer->Unmount();                             // doesnt remove mount aura
+            pPlayer->RemoveSpellsCausingAura(SPELL_AURA_MOUNTED);
+        }
+
+        switch(uiEmote)
+        {
+            case TEXTEMOTE_DANCE: DoCastSpellIfCan(pPlayer, SPELL_FIERY_SEDUCTION); break;// dance -> cast SPELL_FIERY_SEDUCTION
+            case TEXTEMOTE_WAVE:  m_creature->HandleEmote(EMOTE_ONESHOT_WAVE);      break;// wave -> wave
+            case TEXTEMOTE_JOKE:  m_creature->HandleEmote(EMOTE_STATE_LAUGH);       break;// silly -> laugh(with sound)
+            case TEXTEMOTE_BOW:   m_creature->HandleEmote(EMOTE_ONESHOT_BOW);       break;// bow -> bow
+            case TEXTEMOTE_KISS:  m_creature->HandleEmote(TEXTEMOTE_CURTSEY);       break;// kiss -> curtsey
+        }
     }
 };
 
@@ -958,7 +980,7 @@ struct MANGOS_DLL_DECL npc_garments_of_questsAI : public npc_escortAI
                         case ENTRY_DG_KEL: DoScriptText(SAY_DG_KEL_GOODBYE,m_creature,pUnit); break;
                     }
 
-                    Start(false,true);
+                    Start(true);
                 }
                 else
                     EnterEvadeMode();                       //something went wrong

@@ -28,7 +28,7 @@ enum
     SAY_HI  = -1999925
 };
 
-bool AT_example_areatrigger(Player* pPlayer, AreaTriggerEntry *pAt)
+bool AT_example_areatrigger(Player* pPlayer, AreaTriggerEntry const* pAt)
 {
     DoScriptText(SAY_HI, pPlayer);
     return true;
@@ -54,15 +54,15 @@ void AddSC_example_misc()
     newscript = new Script;
     newscript->Name = "example_areatrigger";
     newscript->pAreaTrigger = &AT_example_areatrigger;
-    newscript->RegisterSelf();
+    newscript->RegisterSelf(false);
 
     newscript = new Script;
     newscript->Name = "example_item";
     newscript->pItemUse = &ItemUse_example_item;
-    newscript->RegisterSelf();
+    newscript->RegisterSelf(false);
 
     newscript = new Script;
     newscript->Name = "example_go_teleporter";
     newscript->pGOHello = &GOHello_example_go_teleporter;
-    newscript->RegisterSelf();
+    newscript->RegisterSelf(false);
 }

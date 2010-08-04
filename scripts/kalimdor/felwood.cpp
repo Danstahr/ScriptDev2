@@ -119,7 +119,7 @@ bool EffectDummyCreature_npc_kitten(Unit* pCaster, uint32 uiSpellId, SpellEffect
         if (const CreatureInfo* pTemp = GetCreatureTemplateStore(NPC_CORRUPT_SABER))
         {
             pCreatureTarget->SetEntry(pTemp->Entry);
-            pCreatureTarget->SetDisplayId(pTemp->DisplayID_A[0]);
+            pCreatureTarget->SetDisplayId(Creature::ChooseDisplayId(0, pTemp));
             pCreatureTarget->SetName(pTemp->Name);
             pCreatureTarget->SetFloatValue(OBJECT_FIELD_SCALE_X, pTemp->scale);
         }
@@ -476,7 +476,7 @@ bool QuestAccept_npc_arei(Player* pPlayer, Creature* pCreature, const Quest* pQu
     if (pQuest->GetQuestId() == QUEST_ANCIENT_SPIRIT)
     {
         if (npc_areiAI* pEscortAI = dynamic_cast<npc_areiAI*>(pCreature->AI()))
-            pEscortAI->Start(true, true, pPlayer->GetGUID(), pQuest);
+            pEscortAI->Start(true, pPlayer->GetGUID(), pQuest);
 		DoScriptText(SAY_START, pCreature, pPlayer);
     }
     return true;

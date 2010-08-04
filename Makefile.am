@@ -68,6 +68,7 @@ scripts/eastern_kingdoms/silvermoon_city.cpp \
 scripts/eastern_kingdoms/silverpine_forest.cpp \
 scripts/eastern_kingdoms/stormwind_city.cpp \
 scripts/eastern_kingdoms/stranglethorn_vale.cpp \
+scripts/eastern_kingdoms/swamp_of_sorrows.cpp \
 scripts/eastern_kingdoms/tirisfal_glades.cpp \
 scripts/eastern_kingdoms/undercity.cpp \
 scripts/eastern_kingdoms/western_plaguelands.cpp \
@@ -85,6 +86,7 @@ scripts/eastern_kingdoms/blackrock_depths/boss_high_interrogator_gerstahn.cpp \
 scripts/eastern_kingdoms/blackrock_depths/boss_magmus.cpp \
 scripts/eastern_kingdoms/blackrock_depths/boss_tomb_of_seven.cpp \
 scripts/eastern_kingdoms/blackrock_depths/instance_blackrock_depths.cpp \
+scripts/eastern_kingdoms/blackrock_spire/blackrock_spire.h \
 scripts/eastern_kingdoms/blackrock_spire/boss_drakkisath.cpp \
 scripts/eastern_kingdoms/blackrock_spire/boss_gyth.cpp \
 scripts/eastern_kingdoms/blackrock_spire/boss_halycon.cpp \
@@ -97,6 +99,7 @@ scripts/eastern_kingdoms/blackrock_spire/boss_rend_blackhand.cpp \
 scripts/eastern_kingdoms/blackrock_spire/boss_shadow_hunter_voshgajin.cpp \
 scripts/eastern_kingdoms/blackrock_spire/boss_the_beast.cpp \
 scripts/eastern_kingdoms/blackrock_spire/boss_warmaster_voone.cpp \
+scripts/eastern_kingdoms/blackrock_spire/instance_blackrock_spire.cpp \
 scripts/eastern_kingdoms/blackwing_lair/boss_broodlord_lashlayer.cpp \
 scripts/eastern_kingdoms/blackwing_lair/boss_chromaggus.cpp \
 scripts/eastern_kingdoms/blackwing_lair/boss_ebonroc.cpp \
@@ -302,6 +305,7 @@ scripts/kalimdor/temple_of_ahnqiraj/instance_temple_of_ahnqiraj.cpp \
 scripts/kalimdor/temple_of_ahnqiraj/mob_anubisath_sentinel.cpp \
 scripts/kalimdor/temple_of_ahnqiraj/temple_of_ahnqiraj.h \
 scripts/kalimdor/wailing_caverns/instance_wailing_caverns.cpp \
+scripts/kalimdor/wailing_caverns/wailing_caverns.h \
 scripts/kalimdor/zulfarrak/zulfarrak.cpp \
 scripts/northrend/borean_tundra.cpp \
 scripts/northrend/dalaran.cpp \
@@ -386,6 +390,10 @@ scripts/northrend/nexus/nexus/instance_nexus.cpp \
 scripts/northrend/obsidian_sanctum/boss_sartharion.cpp \
 scripts/northrend/obsidian_sanctum/instance_obsidian_sanctum.cpp \
 scripts/northrend/obsidian_sanctum/obsidian_sanctum.h \
+scripts/northrend/ruby_sanctum/boss_halion.cpp \
+scripts/northrend/ruby_sanctum/boss_baltharus.cpp \
+scripts/northrend/ruby_sanctum/boss_saviana.cpp \
+scripts/northrend/ruby_sanctum/boss_zarithian.cpp \
 scripts/northrend/ulduar/halls_of_lightning/boss_bjarngrim.cpp \
 scripts/northrend/ulduar/halls_of_lightning/boss_ionar.cpp \
 scripts/northrend/ulduar/halls_of_lightning/boss_loken.cpp \

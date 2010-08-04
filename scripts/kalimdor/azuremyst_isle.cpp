@@ -241,7 +241,7 @@ struct MANGOS_DLL_DECL npc_geezleAI : public npc_escortAI
             {
                 EngSpark=Spark;
                 EventStarted=true;
-                Start(false);
+                Start();
             }
             return;
         }
@@ -387,7 +387,7 @@ struct MANGOS_DLL_DECL npc_engineer_spark_overgrindAI : public npc_escortAI
             {
                 m_creature->GetMotionMaster()->MoveIdle();
                 m_creature->RemoveFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
-                Start(false);
+                Start();
                 EventStarted=true;
             }
             else
@@ -571,7 +571,7 @@ bool QuestAccept_npc_magwin(Player* pPlayer, Creature* pCreature, const Quest* p
         pCreature->setFaction(10);
 
         if (npc_magwinAI* pEscortAI = dynamic_cast<npc_magwinAI*>(pCreature->AI()))
-            pEscortAI->Start(true, false, pPlayer->GetGUID(), pQuest);
+            pEscortAI->Start(false, pPlayer->GetGUID(), pQuest);
     }
     return true;
 }

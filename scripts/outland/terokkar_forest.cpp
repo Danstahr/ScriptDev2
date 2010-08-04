@@ -336,7 +336,7 @@ bool QuestAccept_npc_akuno(Player* pPlayer, Creature* pCreature, const Quest* pQ
             pCreature->setFaction(FACTION_ESCORT_N_NEUTRAL_ACTIVE);
 
             DoScriptText(SAY_AKU_START, pCreature);
-            pEscortAI->Start(true, false, pPlayer->GetGUID(), pQuest);
+            pEscortAI->Start(false, pPlayer->GetGUID(), pQuest);
         }
     }
     return true;
@@ -588,8 +588,8 @@ bool QuestAccept_npc_skywing(Player* pPlayer, Creature* pCreature, const Quest* 
     {
         if (npc_skywingAI* pEscortAI = dynamic_cast<npc_skywingAI*>(pCreature->AI()))
             if (pPlayer->isGameMaster())
-                pEscortAI->Start(true, true, pPlayer->GetGUID(), pQuest);
-            else pEscortAI->Start(true, false, pPlayer->GetGUID(), pQuest);
+                pEscortAI->Start(true, pPlayer->GetGUID(), pQuest);
+            else pEscortAI->Start(false, pPlayer->GetGUID(), pQuest);
         DoScriptText(SAY_START, pCreature);
         pCreature->setFaction(113);
     }
@@ -964,7 +964,7 @@ bool QuestAccept_npc_letoll(Player* pPlayer, Creature* pCreature, const Quest* p
             DoScriptText(SAY_LE_START, pCreature);
             pCreature->setFaction(FACTION_ESCORT_N_NEUTRAL_PASSIVE);
 
-            pEscortAI->Start(false, false, pPlayer->GetGUID(), pQuest, true);
+            pEscortAI->Start(false, pPlayer->GetGUID(), pQuest, true);
         }
     }
 

@@ -100,7 +100,7 @@ struct MANGOS_DLL_DECL mob_mature_netherwing_drakeAI : public ScriptedAI
         {
             bIsEating = true;
             EatTimer = 7000;
-            m_creature->HandleEmoteCommand(EMOTE_ONESHOT_ATTACKUNARMED);
+            m_creature->HandleEmote(EMOTE_ONESHOT_ATTACKUNARMED);
         }
     }
 
@@ -766,7 +766,7 @@ bool QuestAccept_npc_wilda(Player* pPlayer, Creature* pCreature, const Quest* pQ
         pCreature->setFaction(FACTION_EARTHEN);
 
         if (npc_wildaAI* pEscortAI = dynamic_cast<npc_wildaAI*>(pCreature->AI()))
-            pEscortAI->Start(false, false, pPlayer->GetGUID(), pQuest);
+            pEscortAI->Start(false, pPlayer->GetGUID(), pQuest);
     }
     return true;
 }
@@ -821,10 +821,10 @@ static TorlothCinematic TorlothAnim[]=
     {SAY_TORLOTH_DIALOGUE1, TORLOTH, 2000},
     {SAY_ILLIDAN_DIALOGUE, LORD_ILLIDAN, 7000},
     {SAY_TORLOTH_DIALOGUE2, TORLOTH, 3000},
-    {NULL, TORLOTH, 2000},                                  // Torloth stand
+    {0, TORLOTH, 2000},                                  // Torloth stand
     {SAY_TORLOTH_DIALOGUE3, TORLOTH, 1000}, 
-    {NULL, TORLOTH, 3000},
-    {NULL, TORLOTH, NULL}
+    {0, TORLOTH, 3000},
+    {0, TORLOTH, 0}
 };
 
 struct Location
@@ -955,7 +955,7 @@ struct MANGOS_DLL_DECL mob_torlothAI : public ScriptedAI
                 {
                     m_creature->AddThreat(pTarget);
                     m_creature->SetFacingToObject(pTarget);
-                    m_creature->HandleEmoteCommand(EMOTE_ONESHOT_POINT);
+                    m_creature->HandleEmote(EMOTE_ONESHOT_POINT);
                 }
                  break;
             case 6:
