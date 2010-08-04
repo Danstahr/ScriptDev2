@@ -127,6 +127,7 @@ struct MANGOS_DLL_DECL boss_drakkari_colossusAI : public ScriptedAI
         {
             m_creature->SetUInt64Value(UNIT_FIELD_TARGET, 0);
             m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+            m_creature->RemoveAllAuras();
             SpellFreezeAnim=3000;
             //m_creature->CastSpell(m_creature, SPELL_FREEZE_ANIM, true);
             m_creature->GetMotionMaster()->MoveIdle();
@@ -327,6 +328,7 @@ struct MANGOS_DLL_DECL boss_drakkari_elementalAI : public ScriptedAI
             m_bMergedOnce = true;
 
             m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+            m_creature->RemoveAllAuras();
             DelayedVisibility=3000;
             m_creature->GetMotionMaster()->MoveIdle();
             if (m_pInstance)
@@ -334,7 +336,6 @@ struct MANGOS_DLL_DECL boss_drakkari_elementalAI : public ScriptedAI
                 if (Creature* colossus = m_creature->GetMap()->GetCreature(m_pInstance->GetData64(DATA_DRAKKARI_COLOSSUS)))
                     m_creature->CastSpell(colossus, SPELL_MERGE, false);
             }
-            m_creature->RemoveAurasDueToSpell(SPELL_MOJO_VOLLEY);
         }
 
         /*if (PuddleTimer<diff)

@@ -33,11 +33,40 @@ struct MANGOS_DLL_DECL instance_pinnacle : public ScriptedInstance
 
     uint64 m_uiSkadiDoorGUID;
 
+    uint64 m_uiRhinoGUID;
+    uint64 m_uiJormungarGUID;
+    uint64 m_uiWorgenGUID;
+    uint64 m_uiFurbolgGUID;
+    uint8  m_uiHarpoonsUsed;
+    uint64 m_uiHarpoon1GUID;
+    uint64 m_uiHarpoon2GUID;
+    uint64 m_uiHarpoon3GUID;
+
     void Initialize()
     {
         memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
 
-        m_uiSkadiDoorGUID = 0;
+        m_uiRhinoGUID       = 0;
+        m_uiJormungarGUID   = 0;
+        m_uiWorgenGUID      = 0;
+        m_uiFurbolgGUID     = 0;
+        m_uiSkadiDoorGUID   = 0;
+        m_uiHarpoonsUsed    = 0;
+        m_uiHarpoon1GUID    = 0;
+        m_uiHarpoon2GUID    = 0;
+        m_uiHarpoon3GUID    = 0;
+
+    }
+
+    void OnCreatureCreate(Creature* pCreature)
+    {
+        switch(pCreature->GetEntry())
+        {
+            case NPC_RHINO:         m_uiRhinoGUID = pCreature->GetGUID();           break;
+            case NPC_JORMUNGAR:     m_uiJormungarGUID = pCreature->GetGUID();       break;
+            case NPC_WORGEN :       m_uiWorgenGUID = pCreature->GetGUID();          break;
+            case NPC_FURBOLG:       m_uiFurbolgGUID = pCreature->GetGUID();         break;
+        }
     }
 
     void OnObjectCreate(GameObject* pGo)
@@ -51,6 +80,9 @@ struct MANGOS_DLL_DECL instance_pinnacle : public ScriptedInstance
                     pGo->SetGoState(GO_STATE_ACTIVE);
 
                 break;
+            case GO_HARPOON1: m_uiHarpoon1GUID = pGo->GetGUID(); pGo->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1); break;
+            case GO_HARPOON2: m_uiHarpoon2GUID = pGo->GetGUID(); pGo->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1); break;
+            case GO_HARPOON3: m_uiHarpoon3GUID = pGo->GetGUID(); pGo->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1); break;
         }
     }
 
@@ -75,6 +107,16 @@ struct MANGOS_DLL_DECL instance_pinnacle : public ScriptedInstance
             case TYPE_YMIRON:
                 m_auiEncounter[3] = uiData;
                 break;
+            case TYPE_HARPOONLUNCHER:
+                if (uiData == IN_PROGRESS)
+                    if (m_uiHarpoonsUsed < 7)
+                        ++m_uiHarpoonsUsed;
+                if (m_uiHarpoonsUsed == 4)
+                    m_auiEncounter[4] = DONE;
+                if (m_uiHarpoonsUsed == 6)
+                    m_auiEncounter[4] = SPECIAL;
+                break;
+
             default:
                 error_log("SD2: Instance Pinnacle: SetData = %u for type %u does not exist/not implemented.", uiType, uiData);
                 break;
@@ -107,8 +149,25 @@ struct MANGOS_DLL_DECL instance_pinnacle : public ScriptedInstance
                 return m_auiEncounter[2];
             case TYPE_YMIRON:
                 return m_auiEncounter[3];
+            case TYPE_HARPOONLUNCHER:
+                return m_auiEncounter[4];
         }
 
+        return 0;
+    }
+
+    uint64 GetData64(uint32 uiData)
+    {
+        switch(uiData)
+        {
+            case NPC_RHINO:         return m_uiRhinoGUID;       
+            case NPC_JORMUNGAR:     return m_uiJormungarGUID; 
+            case NPC_WORGEN :       return m_uiWorgenGUID;  
+            case NPC_FURBOLG:       return m_uiFurbolgGUID;
+            case GO_HARPOON1:       return m_uiHarpoon1GUID;
+            case GO_HARPOON2:       return m_uiHarpoon2GUID;
+            case GO_HARPOON3:       return m_uiHarpoon3GUID;
+        }
         return 0;
     }
 
