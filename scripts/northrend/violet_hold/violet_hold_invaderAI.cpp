@@ -136,7 +136,7 @@ void violet_hold_invaderAI::UpdateEscortAI(const uint32 diff)
                 AddWaypoint(i, portal1WP[i][0], portal1WP[i][1], portal1WP[i][2]);
             }
             SetDespawnAtEnd(true);
-            Start(true,true);
+            Start(true);
             WaypointSet=true;
             break;
         case 2:
@@ -145,7 +145,7 @@ void violet_hold_invaderAI::UpdateEscortAI(const uint32 diff)
                 AddWaypoint(i, portal2WP[i][0], portal2WP[i][1], portal2WP[i][2]);
             }
             SetDespawnAtEnd(true);
-            Start(true,true);
+            Start(true);
             WaypointSet=true;   
             break;
         case 3:
@@ -154,7 +154,7 @@ void violet_hold_invaderAI::UpdateEscortAI(const uint32 diff)
                 AddWaypoint(i, portal3WP[i][0], portal3WP[i][1], portal3WP[i][2]);
             }
             SetDespawnAtEnd(true);
-            Start(true,true);
+            Start(true);
             WaypointSet=true;
             break;
         case 4:
@@ -163,7 +163,7 @@ void violet_hold_invaderAI::UpdateEscortAI(const uint32 diff)
                 AddWaypoint(i, portal4WP[i][0], portal4WP[i][1], portal4WP[i][2]);
             }
             SetDespawnAtEnd(true);
-            Start(true,true);
+            Start(true);
             WaypointSet=true;
             break;
         case 5:
@@ -172,7 +172,7 @@ void violet_hold_invaderAI::UpdateEscortAI(const uint32 diff)
                 AddWaypoint(i, portal5WP[i][0], portal5WP[i][1], portal5WP[i][2]);
             }
             SetDespawnAtEnd(true);
-            Start(true,true);
+            Start(true);
             WaypointSet=true;
             break;
         case 6:
@@ -181,7 +181,7 @@ void violet_hold_invaderAI::UpdateEscortAI(const uint32 diff)
                 AddWaypoint(i, portal6WP[i][0], portal6WP[i][1], portal6WP[i][2]);
             }
             SetDespawnAtEnd(true);
-            Start(true,true);
+            Start(true);
             WaypointSet=true;
             break;
         case 7:
@@ -190,7 +190,7 @@ void violet_hold_invaderAI::UpdateEscortAI(const uint32 diff)
                 AddWaypoint(i, portal7WP[i][0], portal7WP[i][1], portal7WP[i][2]);
             }
             SetDespawnAtEnd(true);
-            Start(true,true);
+            Start(true);
             WaypointSet=true;
             break;
         case 8:
@@ -199,7 +199,7 @@ void violet_hold_invaderAI::UpdateEscortAI(const uint32 diff)
                 AddWaypoint(i, portal8WP[i][0], portal8WP[i][1], portal8WP[i][2]);
             }
             SetDespawnAtEnd(true);
-            Start(true,true);
+            Start(true);
             WaypointSet=true;
             break;
         }

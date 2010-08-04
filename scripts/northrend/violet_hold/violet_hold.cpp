@@ -1401,7 +1401,7 @@ struct MANGOS_DLL_DECL mob_azuresaboteurAI : public npc_escortAI
                         AddWaypoint(i,LavanthorReleaseWP[i][0],LavanthorReleaseWP[i][1],LavanthorReleaseWP[i][2]);
                 }
                 SetDespawnAtEnd(false);
-                Start(true,true);
+                Start(true);
                 WaypointSet=true;
                 break;
             case 1: //Moragg
@@ -1413,7 +1413,7 @@ struct MANGOS_DLL_DECL mob_azuresaboteurAI : public npc_escortAI
                         AddWaypoint(i,MoraggReleaseWP[i][0],MoraggReleaseWP[i][1],MoraggReleaseWP[i][2]);
                 }
                 SetDespawnAtEnd(false);
-                Start(true,true);
+                Start(true);
                 WaypointSet=true;
                 break;
             case 2: //Zuramat
@@ -1425,7 +1425,7 @@ struct MANGOS_DLL_DECL mob_azuresaboteurAI : public npc_escortAI
                         AddWaypoint(i,ZuramatReleaseWP[i][0],ZuramatReleaseWP[i][1],ZuramatReleaseWP[i][2]);
                 }
                 SetDespawnAtEnd(false);
-                Start(true,true);
+                Start(true);
                 WaypointSet=true;
                 break;
             case 3: //Erekem
@@ -1437,7 +1437,7 @@ struct MANGOS_DLL_DECL mob_azuresaboteurAI : public npc_escortAI
                         AddWaypoint(i,ErekemReleaseWP[i][0],ErekemReleaseWP[i][1],ErekemReleaseWP[i][2]);
                 }
                 SetDespawnAtEnd(false);
-                Start(true,true);
+                Start(true);
                 WaypointSet=true;
                 break;
             case 4: //Ichoron
@@ -1449,7 +1449,7 @@ struct MANGOS_DLL_DECL mob_azuresaboteurAI : public npc_escortAI
                         AddWaypoint(i,IchoronReleaseWP[i][0],IchoronReleaseWP[i][1],IchoronReleaseWP[i][2]);
                 }
                 SetDespawnAtEnd(false);
-                Start(true,true);
+                Start(true);
                 WaypointSet=true;
                 break;
             case 5: //Xevozz
@@ -1461,7 +1461,7 @@ struct MANGOS_DLL_DECL mob_azuresaboteurAI : public npc_escortAI
                         AddWaypoint(i,XevozzReleaseWP[i][0],XevozzReleaseWP[i][1],XevozzReleaseWP[i][2]);
                 }
                 SetDespawnAtEnd(false);
-                Start(true,true);
+                Start(true);
                 WaypointSet=true;
                 break;
             }
@@ -1773,7 +1773,7 @@ struct MANGOS_DLL_DECL npc_violetholdguardAI : public npc_escortAI
 
     void DoAction(uint32 action)
     {
-        Start(false,true);
+        Start(true);
     }
 
     void WaypointReached(uint32 point)
